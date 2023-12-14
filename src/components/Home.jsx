@@ -8,6 +8,9 @@ import axios from "axios";
 
 const Home = () => {
   const [data, setData] = useState([]);
+  const [query, setQuery] = useState("");
+
+  console.log(data.filter((data) => data.name.includes("test")));
 
   const getUsers = async () => {
     try {
@@ -36,10 +39,18 @@ const Home = () => {
   return (
     <div className="container">
       <div className="row">
-        <div className="col-md-12 my-5 text-right ">
+        <div className="col-md-9 my-5 text-right ">
           <Link to="/add" className="btn btn-outline-dark">
             Add contact
           </Link>
+        </div>
+        <div className="col-md-3 my-5 align-items-end text-right">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="searchBar p-1 w-100"
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
         <div className="col-md-10 mx-auto">
           <table className="table table-hover">
@@ -53,29 +64,36 @@ const Home = () => {
               </tr>
             </thead>
             <tbody>
-              {data.map((data, id) => (
-                <tr key={id} className="text-center">
-                  <td>{id + 1}</td>
-                  <td>{data.name}</td>
-                  <td>{data.email}</td>
-                  <td>{data.number}</td>
-                  <td>
-                    <Link
-                      to={`/edit/${data.id}`}
-                      className="btn btn-small btn-primary mx-2"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => deleteContact(data.id)}
-                      className="btn btn-small btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {data
+                .filter(
+                  (data) =>
+                    data.name.toLowerCase().includes(query) ||
+                    data.email.toLowerCase().includes(query) ||
+                    data.number.toLowerCase().includes(query)
+                )
+                .map((data, id) => (
+                  <tr key={id} className="text-center">
+                    <td>{id + 1}</td>
+                    <td>{data.name}</td>
+                    <td>{data.email}</td>
+                    <td>{data.number}</td>
+                    <td>
+                      <Link
+                        to={`/edit/${data.id}`}
+                        className="btn btn-small btn-primary mx-2"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => deleteContact(data.id)}
+                        className="btn btn-small btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
