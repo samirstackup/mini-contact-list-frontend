@@ -10,7 +10,14 @@ const Home = () => {
   const [data, setData] = useState([]);
   const [query, setQuery] = useState("");
 
-  console.log(data.filter((data) => data.name.includes("test")));
+  //pagination
+  const [currentPage, setcurrentPage] = useState(1);
+  const limit = 5;
+  const lastIndex = currentPage * limit;
+  const firstIndex = lastIndex - limit;
+  const records = data.slice(firstIndex, lastIndex);
+  const nPages = Math.ceil(data.length / limit);
+  const numbers = [...Array(nPages + 1).keys()].slice(1);
 
   const getUsers = async () => {
     try {
@@ -34,6 +41,20 @@ const Home = () => {
       toast.success("Contact deleted");
       getUsers();
     }
+  };
+
+  const prevPage = () => {
+    if (currentPage !== 1) {
+      setcurrentPage(currentPage - 1);
+    }
+  };
+  const nextPage = () => {
+    if (currentPage !== nPages) {
+      setcurrentPage(currentPage + 1);
+    }
+  };
+  const changePage = (id) => {
+    setcurrentPage(id);
   };
 
   return (
@@ -64,38 +85,69 @@ const Home = () => {
               </tr>
             </thead>
             <tbody>
-              {data
+              {records
                 .filter(
                   (data) =>
                     data.name.toLowerCase().includes(query) ||
                     data.email.toLowerCase().includes(query) ||
                     data.number.toLowerCase().includes(query)
                 )
-                .map((data, id) => (
-                  <tr key={id} className="text-center">
-                    <td>{id + 1}</td>
-                    <td>{data.name}</td>
-                    <td>{data.email}</td>
-                    <td>{data.number}</td>
-                    <td>
-                      <Link
-                        to={`/edit/${data.id}`}
-                        className="btn btn-small btn-primary mx-2"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => deleteContact(data.id)}
-                        className="btn btn-small btn-danger"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                .map((data, localIndex) => {
+                  const globalIndex = firstIndex + localIndex + 1;
+                  return (
+                    <tr key={globalIndex} className="text-center">
+                      <td>{globalIndex}</td>
+                      <td>{data.name}</td>
+                      <td>{data.email}</td>
+                      <td>{data.number}</td>
+                      <td>
+                        <Link
+                          to={`/edit/${data.id}`}
+                          className="btn btn-small btn-primary mx-2"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => deleteContact(data.id)}
+                          className="btn btn-small btn-danger"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
+          <nav>
+            <ul className="pagination">
+              <li className="page-item">
+                <a href="#" className="page-link" onClick={prevPage}>
+                  Prev
+                </a>
+              </li>
+              {numbers.map((n, i) => (
+                <li
+                  className={`page-item ${currentPage === n ? "active" : ""}`}
+                  key={i}
+                >
+                  <a
+                    href="#"
+                    className="page-link"
+                    onClick={() => changePage(n)}
+                  >
+                    {n}
+                  </a>
+                </li>
+              ))}
+              <li className="page-item">
+                <a href="#" className="page-link" onClick={nextPage}>
+                  Next
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
